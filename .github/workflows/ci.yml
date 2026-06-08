@@ -92,6 +92,23 @@ jobs:
     # Autres options : windows-latest, macos-latest
     runs-on: ubuntu-latest
 
+    # MySQL est nécessaire pour que le contexte Spring Boot se charge pendant les tests
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: DB_FourniNet
+          MYSQL_USER: fourni
+          MYSQL_PASSWORD: fourni123
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root --password=root"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     # steps → la liste des étapes dans ce job (s'exécutent en SÉQUENCE)
     steps:
 
@@ -130,9 +147,12 @@ jobs:
 
           # mvnw verify → compile + exécute TOUS les tests (unit + integration)
           # -B → mode "batch" (pas d'interactivité, logs plus propres)
-          # -DskipTests=false → force l'exécution des tests (redondant mais explicite)
           # --no-transfer-progress → cache les barres de progression Maven (logs plus lisibles)
-          ./mvnw verify -B --no-transfer-progress
+          # -D... → surcharge les propriétés application.properties pour pointer vers le MySQL du CI
+          ./mvnw verify -B --no-transfer-progress \
+            -Dspring.datasource.url=jdbc:mysql://localhost:3306/DB_FourniNet \
+            -Dspring.datasource.username=fourni \
+            -Dspring.datasource.password=fourni123
 
       # ── Step 4 : Publier le rapport de tests ────────────────────────────────
       # if → condition : ce step ne s'exécute QUE si les tests ont échoué
@@ -277,12 +297,11 @@ jobs:
              -Dspring.datasource.password=fourni123" \
             -DskipTests &
 
-          # Attend que le backend soit prêt (vérifie /actuator/health)
-          # until → boucle qui continue JUSQU'À ce que la commande réussisse
-          # curl --fail → retourne exit code != 0 si la réponse HTTP est une erreur
-          # sleep 5 → attend 5s entre chaque essai
+          # Attend que le port 8083 soit ouvert (nc = netcat, vérifie la connexion TCP)
+          # On n'utilise PAS /actuator/health car Spring Actuator n'est pas dans les deps.
+          # nc -z = vérifie juste si le port accepte des connexions (sans envoyer de données)
           echo "Waiting for backend to start..."
-          timeout 120 bash -c 'until curl -sf http://localhost:8083/actuator/health 2>/dev/null; do sleep 5; done'
+          timeout 120 bash -c 'until nc -z localhost 8083 2>/dev/null; do sleep 3; done'
           echo "Backend is up!"
 
       # ── Démarrer Angular en arrière-plan ────────────────────────────────
