@@ -1,0 +1,198 @@
+<section class="ftco-section bg-light">
+  <div class="container">
+
+    <!-- Heading -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-md-12 heading-section text-center">
+        <span class="subheading">Administration</span>
+        <h2 class="mb-2">{{ 'PRODUIT_ADMIN.TITLE' | translate }}</h2>
+      </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = null"></button>
+    </div>
+
+    <!-- Delete Confirmation -->
+    <div *ngIf="deletePending != null" class="alert alert-warning d-flex align-items-center gap-3">
+      <i class="bi bi-trash3 me-1"></i>
+      <span>{{ 'COMMON.CONFIRM_DELETE_MSG' | translate }}</span>
+      <button class="btn btn-danger btn-sm" (click)="confirmDelete()">{{ 'COMMON.CONFIRM_DELETE' | translate }}</button>
+      <button class="btn btn-secondary btn-sm" (click)="cancelDelete()">{{ 'COMMON.CANCEL' | translate }}</button>
+    </div>
+
+    <!-- ── ADD FORM ──────────────────────────────────────────── -->
+    <div class="card p-4 mb-5 shadow-sm">
+      <h4 class="mb-4"><i class="bi bi-plus-circle me-2 text-danger"></i>{{ 'PRODUIT_ADMIN.ADD' | translate }}</h4>
+
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">{{ 'PRODUIT_ADMIN.NOM' | translate }}</label>
+          <input type="text" class="form-control" [(ngModel)]="newProduit.nom" name="nom">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label fw-semibold">{{ 'PRODUIT_ADMIN.REFERENCE' | translate }}</label>
+          <input type="text" class="form-control" [(ngModel)]="newProduit.reference" name="reference">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label fw-semibold">{{ 'PRODUIT_ADMIN.PRIX' | translate }}</label>
+          <input type="number" class="form-control" [(ngModel)]="newProduit.prix" name="prix">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label fw-semibold">{{ 'PRODUIT_ADMIN.QUANTITE' | translate }}</label>
+          <input type="number" class="form-control" [(ngModel)]="newProduit.quantite" name="quantite" min="0">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label fw-semibold">{{ 'PRODUIT_ADMIN.QUANTITE_MIN' | translate }}</label>
+          <input type="number" class="form-control" [(ngModel)]="newProduit.quantiteMin" name="quantiteMin" min="0">
+        </div>
+      </div>
+
+      <div class="row g-3 mt-1">
+        <div class="col-md-12">
+          <label class="form-label fw-semibold">{{ 'PRODUIT_ADMIN.DESCRIPTION' | translate }}</label>
+          <div class="d-flex gap-2">
+            <textarea rows="2" class="form-control" [(ngModel)]="newProduit.description" name="description"></textarea>
+            <button class="btn btn-outline-secondary align-self-start"
+                    (click)="suggestCategory()" [disabled]="suggesting"
+                    title="{{ 'PRODUIT_ADMIN.SUGGEST_CATEGORY' | translate }}">
+              <i class="bi bi-robot me-1"></i>
+              <span *ngIf="!suggesting">IA</span>
+              <span *ngIf="suggesting"><i class="bi bi-arrow-repeat spin"></i></span>
+            </button>
+          </div>
+          <div *ngIf="suggestionResult" class="mt-2 text-sm">
+            <i class="bi bi-lightbulb text-warning me-1"></i>
+            Suggestion IA : <strong class="text-danger">{{ suggestionResult }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category / Fournisseur / Constructeur dropdowns -->
+      <div class="row g-3 mt-1">
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">
+            {{ 'PRODUIT_ADMIN.CATEGORIE' | translate }}
+            <span *ngIf="suggestionResult && selectedCategorie" class="ms-1 badge bg-warning text-dark" style="font-size:0.65rem">
+              <i class="bi bi-robot me-1"></i>IA
+            </span>
+          </label>
+          <select class="form-select" [(ngModel)]="selectedCategorie" name="categorie">
+            <option [ngValue]="null">— Sélectionner —</option>
+            <option *ngFor="let c of categories" [ngValue]="c">{{ c.nom }}</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">{{ 'PRODUIT_ADMIN.FOURNISSEUR' | translate }}</label>
+          <select class="form-select" [(ngModel)]="selectedFournisseur" name="fournisseur">
+            <option [ngValue]="null">— Sélectionner —</option>
+            <option *ngFor="let f of fournisseurs" [ngValue]="f">{{ f.nom }}</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">{{ 'PRODUIT_ADMIN.CONSTRUCTEUR' | translate }}</label>
+          <select class="form-select" [(ngModel)]="selectedConstructeur" name="constructeur">
+            <option [ngValue]="null">— Sélectionner —</option>
+            <option *ngFor="let c of constructeurs" [ngValue]="c">{{ c.nom }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="text-end mt-4">
+        <button class="btn btn-primary px-4" (click)="add()">
+          <i class="bi bi-plus-lg me-1"></i>{{ 'COMMON.ADD' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── TABLE ────────────────────────────────────────────── -->
+    <div class="table-responsive shadow-sm rounded">
+      <table class="table table-striped table-hover mb-0">
+        <thead>
+          <tr>
+            <th>{{ 'PRODUIT_ADMIN.NOM' | translate }}</th>
+            <th>{{ 'PRODUIT_ADMIN.REFERENCE' | translate }}</th>
+            <th>{{ 'PRODUIT_ADMIN.PRIX' | translate }}</th>
+            <th>Stock</th>
+            <th>{{ 'PRODUIT_ADMIN.CATEGORIE' | translate }}</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let produit of produits">
+
+            <!-- Normal view -->
+            <ng-container *ngIf="!editingProduit || editingProduit.id !== produit.id">
+              <td class="fw-semibold">{{ produit.nom }}</td>
+              <td><span class="badge bg-secondary">{{ produit.reference }}</span></td>
+              <td>{{ produit.prix | number:'1.2-2' }} TND</td>
+              <td>
+                <!-- Quick stock view/edit -->
+                <ng-container *ngIf="stockEditing !== produit.id">
+                  <span class="stock-badge" [class.stock-ok]="!isLowStock(produit)" [class.stock-low]="isLowStock(produit)">
+                    <i class="bi" [class.bi-check-circle-fill]="!isLowStock(produit)" [class.bi-exclamation-triangle-fill]="isLowStock(produit)"></i>
+                    {{ produit.quantite }} / {{ produit.quantiteMin }}
+                  </span>
+                  <button class="btn btn-link btn-sm p-0 ms-2" (click)="openStockEdit(produit)" title="{{ 'PRODUIT_ADMIN.STOCK_UPDATE' | translate }}">
+                    <i class="bi bi-pencil-fill text-muted" style="font-size:0.75rem"></i>
+                  </button>
+                </ng-container>
+
+                <!-- Inline stock editor -->
+                <ng-container *ngIf="stockEditing === produit.id">
+                  <div class="d-flex align-items-center gap-1">
+                    <input type="number" class="form-control form-control-sm" style="width:64px" [(ngModel)]="stockValue" min="0">
+                    <span class="text-muted">/</span>
+                    <input type="number" class="form-control form-control-sm" style="width:64px" [(ngModel)]="stockMinValue" min="0">
+                    <button class="btn btn-success btn-sm" (click)="saveStock()"><i class="bi bi-check-lg"></i></button>
+                    <button class="btn btn-secondary btn-sm" (click)="cancelStockEdit()"><i class="bi bi-x-lg"></i></button>
+                  </div>
+                </ng-container>
+              </td>
+              <td>
+                <span *ngIf="produit.categorie" class="badge fn-badge-cat">{{ produit.categorie.nom }}</span>
+                <span *ngIf="!produit.categorie" class="text-muted">—</span>
+              </td>
+              <td>
+                <button class="btn btn-warning btn-sm me-1" (click)="startEdit(produit)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-danger btn-sm" (click)="remove(produit.id ?? 0)">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </td>
+            </ng-container>
+
+            <!-- Edit mode -->
+            <ng-container *ngIf="editingProduit && editingProduit.id === produit.id">
+              <td><input type="text" class="form-control form-control-sm" [(ngModel)]="editingProduit.nom"></td>
+              <td><input type="text" class="form-control form-control-sm" [(ngModel)]="editingProduit.reference"></td>
+              <td><input type="number" class="form-control form-control-sm" [(ngModel)]="editingProduit.prix"></td>
+              <td>
+                <div class="d-flex gap-1">
+                  <input type="number" class="form-control form-control-sm" [(ngModel)]="editingProduit.quantite" placeholder="Qté" style="width:70px">
+                  <input type="number" class="form-control form-control-sm" [(ngModel)]="editingProduit.quantiteMin" placeholder="Min" style="width:70px">
+                </div>
+              </td>
+              <td>
+                <!-- Bind by ID (number primitive) so pre-selection works correctly -->
+                <select class="form-select form-select-sm" [(ngModel)]="editingProduit.categorieId">
+                  <option [ngValue]="null">—</option>
+                  <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.nom }}</option>
+                </select>
+              </td>
+              <td>
+                <button class="btn btn-primary btn-sm me-1" (click)="saveEdit()"><i class="bi bi-check-lg"></i></button>
+                <button class="btn btn-secondary btn-sm" (click)="cancelEdit()"><i class="bi bi-x-lg"></i></button>
+              </td>
+            </ng-container>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>

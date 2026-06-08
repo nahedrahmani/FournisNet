@@ -1,0 +1,59 @@
+.tree-node {
+  margin: 2px 0;
+}
+
+.node-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: default;
+}
+
+.node-header:hover {
+  background: #f5f5f5;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  color: #666;
+  width: 18px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.toggle-placeholder {
+  width: 18px;
+  flex-shrink: 0;
+}
+
+.node-label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #212121;
+}
+
+.node-type-badge {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: #e0e0e0;
+  color: #555;
+  margin-left: 4px;
+}
+
+/* Type-specific colours */
+.type-fabriquant_origine { color: #1565c0; }
+.type-sous_traitant      { color: #6a1b9a; }
+.type-distributeur       { color: #2e7d32; }
+
+.node-children {
+  list-style: none;
+  padding-left: 22px;
+  margin: 0;
+  border-left: 2px solid #e0e0e0;
+}

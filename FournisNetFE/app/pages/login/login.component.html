@@ -1,0 +1,80 @@
+<div class="lg-wrap">
+  <div class="lg-left d-none d-lg-flex">
+    <div class="lg-left-content">
+      <h1 class="lg-brand mb-3">Fournis<span>Net</span></h1>
+      <p class="lg-tagline">Plateforme de gestion des fournisseurs et du catalogue de pièces détachées</p>
+      <div class="lg-features mt-5">
+        <div class="lg-feature"><i class="bi bi-building me-2"></i>Gestion des fournisseurs</div>
+        <div class="lg-feature"><i class="bi bi-diagram-3 me-2"></i>Arborescences produits</div>
+        <div class="lg-feature"><i class="bi bi-tools me-2"></i>Catalogue de pièces</div>
+        <div class="lg-feature"><i class="bi bi-cloud-upload me-2"></i>Import TSV / CSV</div>
+      </div>
+    </div>
+    <div class="lg-shapes">
+      <div class="lg-shape lg-shape-1"></div>
+      <div class="lg-shape lg-shape-2"></div>
+    </div>
+  </div>
+
+  <div class="lg-right d-flex align-items-center justify-content-center">
+    <div class="lg-card">
+      <div class="text-center mb-4">
+        <h2 class="lg-title">{{ mode === 'login' ? 'Connexion' : 'Créer un compte' }}</h2>
+        <p class="lg-sub text-muted">{{ mode === 'login' ? 'Accédez à votre espace FournisNet' : 'Rejoignez FournisNet' }}</p>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger py-2 px-3 mb-3" style="font-size:.88rem">
+        <i class="bi bi-exclamation-circle me-2"></i>{{ error }}
+      </div>
+
+      <div *ngIf="mode === 'register'" class="mb-3">
+        <label class="lg-label">Nom complet</label>
+        <div class="lg-input-wrap">
+          <i class="bi bi-person lg-input-icon"></i>
+          <input type="text" class="lg-input" placeholder="Votre nom"
+                 [(ngModel)]="fullName" name="fullName" />
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="lg-label">Nom d'utilisateur</label>
+        <div class="lg-input-wrap">
+          <i class="bi bi-at lg-input-icon"></i>
+          <input type="text" class="lg-input" placeholder="username"
+                 [(ngModel)]="username" name="username" (keyup.enter)="submit()" />
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="lg-label">Mot de passe</label>
+        <div class="lg-input-wrap">
+          <i class="bi bi-lock lg-input-icon"></i>
+          <input type="password" class="lg-input" placeholder="••••••••"
+                 [(ngModel)]="password" name="password" (keyup.enter)="submit()" />
+        </div>
+      </div>
+
+      <button class="btn lg-btn w-100 py-3 mb-3" (click)="submit()" [disabled]="loading">
+        <span *ngIf="!loading">
+          {{ mode === 'login' ? 'Se connecter' : 'Créer le compte' }}
+        </span>
+        <span *ngIf="loading"><i class="bi bi-arrow-repeat spin me-2"></i>Chargement...</span>
+      </button>
+
+      <div class="text-center">
+        <span class="text-muted" style="font-size:.88rem">
+          {{ mode === 'login' ? 'Pas encore de compte ?' : 'Déjà un compte ?' }}
+        </span>
+        <button class="btn btn-link lg-toggle p-0 ms-1" (click)="toggle()">
+          {{ mode === 'login' ? 'Créer un compte' : 'Se connecter' }}
+        </button>
+      </div>
+
+      <div *ngIf="mode === 'login'" class="lg-demo-info mt-4">
+        <div class="lg-demo-title">Comptes de demo</div>
+        <div class="lg-demo-row"><span class="lg-demo-badge admin">ADMIN</span> admin / admin123</div>
+        <div class="lg-demo-row"><span class="lg-demo-badge user">USER</span> user / user123</div>
+      </div>
+    </div>
+  </div>
+</div>

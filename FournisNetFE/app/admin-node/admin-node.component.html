@@ -1,0 +1,19 @@
+<div class="tree-node">
+  <div class="node-header">
+    <button *ngIf="hasChildren" class="toggle-btn" (click)="toggle()">
+      {{ expanded ? '▼' : '▶' }}
+    </button>
+    <span *ngIf="!hasChildren" class="toggle-placeholder"></span>
+
+    <span class="node-label" [ngClass]="'type-' + (node.type | lowercase)">
+      {{ node.nom }}
+    </span>
+    <span class="node-type-badge">{{ node.type }}</span>
+  </div>
+
+  <ul *ngIf="hasChildren && expanded" class="node-children">
+    <li *ngFor="let child of node.children">
+      <app-admin-node [node]="child"></app-admin-node>
+    </li>
+  </ul>
+</div>

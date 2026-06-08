@@ -1,0 +1,19 @@
+<div class="stock-toast-container" aria-live="polite">
+  <div *ngFor="let t of toasts" class="stock-toast" [class.critical]="t.quantite === 0">
+    <div class="stock-toast-icon">
+      <i class="bi" [class.bi-exclamation-triangle-fill]="t.quantite > 0" [class.bi-x-octagon-fill]="t.quantite === 0"></i>
+    </div>
+    <div class="stock-toast-body">
+      <div class="stock-toast-title">
+        {{ t.quantite === 0 ? ('CATALOGUE.OUT_OF_STOCK' | translate) : ('CATALOGUE.LOW_STOCK' | translate) }}
+      </div>
+      <div class="stock-toast-msg">
+        <strong>{{ t.nom }}</strong> ({{ t.reference }})<br>
+        <span>Qté: <strong>{{ t.quantite }}</strong> / Min: {{ t.quantiteMin }}</span>
+      </div>
+    </div>
+    <button class="stock-toast-close" (click)="dismiss(t.id)">
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+</div>

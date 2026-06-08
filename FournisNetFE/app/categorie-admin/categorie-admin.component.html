@@ -1,0 +1,89 @@
+<section class="ftco-section bg-light">
+  <div class="container">
+    <!-- Heading -->
+    <div class="row justify-content-center mb-5">
+      <div class="col-md-12 heading-section text-center">
+        <span class="subheading">Administration</span>
+        <h2 class="mb-2">Gestion des Catégories</h2>
+      </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible" role="alert">
+      {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = null"></button>
+    </div>
+
+    <!-- Delete Confirmation -->
+    <div *ngIf="deletePending != null" class="alert alert-warning d-flex align-items-center gap-3" role="alert">
+      <span>Voulez-vous vraiment supprimer cette catégorie ?</span>
+      <button class="btn btn-danger btn-sm" (click)="confirmDelete()">Confirmer</button>
+      <button class="btn btn-secondary btn-sm" (click)="cancelDelete()">Annuler</button>
+    </div>
+
+    <!-- Add Form -->
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card p-4 mb-5 shadow-sm rounded">
+          <h4 class="mb-4 text-center">Ajouter une catégorie</h4>
+          <div class="row g-3">
+            <div class="col-md-8">
+              <input type="text" class="form-control" placeholder="Nom de la catégorie"
+                     [(ngModel)]="newCategorie.nom" name="nom" required>
+            </div>
+            <div class="col-md-4 text-center">
+              <button class="btn btn-primary w-100 py-2" (click)="addCategorie()">
+                Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="table-responsive shadow-sm rounded">
+          <table class="table table-striped table-hover mb-0">
+            <thead >
+              <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let cat of categories">
+                
+                <!-- Normal display -->
+                <ng-container *ngIf="!editingCategorie || editingCategorie.id !== cat.id">
+                  <td>{{ cat.id }}</td>
+                  <td>{{ cat.nom }}</td>
+                  <td>
+                    <button class="btn btn-warning btn-sm me-2" (click)="editCategorie(cat)">Modifier</button>
+                    <button class="btn btn-danger btn-sm" (click)="remove(cat.id ?? 0)">Supprimer</button>
+                  </td>
+                </ng-container>
+
+                <!-- Edit mode -->
+                <ng-container *ngIf="editingCategorie && editingCategorie.id === cat.id">
+                  <td>{{ cat.id }}</td>
+                  <td>
+                    <input type="text" class="form-control form-control-sm"
+                           [(ngModel)]="editingCategorie.nom" name="editNom">
+                  </td>
+                  <td>
+                    <button class="btn btn-primary btn-sm me-2" (click)="updateCategorie()">Sauvegarder</button>
+                    <button class="btn btn-secondary btn-sm" (click)="cancelEdit()">Annuler</button>
+                  </td>
+                </ng-container>
+
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

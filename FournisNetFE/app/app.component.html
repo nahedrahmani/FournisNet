@@ -1,0 +1,109 @@
+<nav class="fn-navbar navbar navbar-expand-lg navbar-dark" *ngIf="auth.isLoggedIn()">
+  <div class="container">
+    <a class="navbar-brand fn-navbar-brand" routerLink="/home">Fournis<span>Net</span></a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+        <li class="nav-item">
+          <a class="nav-link fn-nav-link" routerLink="/home" routerLinkActive="fn-nav-active">
+            <i class="bi bi-speedometer2 me-1"></i>{{ 'NAV.DASHBOARD' | translate }}
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link fn-nav-link" routerLink="/carbook" routerLinkActive="fn-nav-active">
+            <i class="bi bi-house me-1"></i>{{ 'NAV.ACCUEIL' | translate }}
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link fn-nav-link" routerLink="/pieces" routerLinkActive="fn-nav-active">
+            <i class="bi bi-grid me-1"></i>{{ 'NAV.CATALOGUE' | translate }}
+          </a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link fn-nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-sliders me-1"></i>{{ 'NAV.ADMINISTRATION' | translate }}
+          </a>
+          <ul class="dropdown-menu fn-dropdown">
+            <li>
+              <a class="dropdown-item fn-dropdown-item" routerLink="/fournisseur-admin">
+                <i class="bi bi-building me-2"></i>{{ 'NAV.FOURNISSEURS' | translate }}
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item fn-dropdown-item" routerLink="/AdminTree">
+                <i class="bi bi-diagram-3 me-2"></i>{{ 'NAV.ARBO_FOURNISSEURS' | translate }}
+              </a>
+            </li>
+            <li><hr class="dropdown-divider fn-divider"></li>
+            <li>
+              <a class="dropdown-item fn-dropdown-item" routerLink="/produit-admin">
+                <i class="bi bi-tools me-2"></i>{{ 'NAV.PIECES' | translate }}
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item fn-dropdown-item" routerLink="/arbo">
+                <i class="bi bi-folder-symlink me-2"></i>{{ 'NAV.ARBO_PRODUITS' | translate }}
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item fn-dropdown-item" routerLink="/categories">
+                <i class="bi bi-tags me-2"></i>{{ 'NAV.CATEGORIES' | translate }}
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link fn-nav-link" routerLink="/contact" routerLinkActive="fn-nav-active">
+            <i class="bi bi-envelope me-1"></i>{{ 'NAV.CONTACT' | translate }}
+          </a>
+        </li>
+
+        <!-- Language toggle -->
+        <li class="nav-item dropdown ms-lg-1">
+          <a class="nav-link fn-nav-link dropdown-toggle fn-lang-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-translate me-1"></i>{{ lang.current.toUpperCase() }}
+          </a>
+          <ul class="dropdown-menu fn-dropdown dropdown-menu-end">
+            <li *ngFor="let l of lang.langs">
+              <button class="dropdown-item fn-dropdown-item"
+                      [class.active]="l.code === lang.current"
+                      (click)="lang.setLang(l.code)">
+                {{ l.flag }} {{ l.label }}
+              </button>
+            </li>
+          </ul>
+        </li>
+
+        <!-- User chip -->
+        <li class="nav-item dropdown ms-lg-2">
+          <a class="fn-user-chip dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="fn-user-avatar">{{ (auth.getUser()?.fullName || 'U')[0].toUpperCase() }}</span>
+            <span class="fn-user-name d-none d-lg-inline">{{ auth.getUser()?.fullName }}</span>
+            <span class="fn-role-badge" [class.fn-role-admin]="auth.isAdmin()">
+              {{ auth.isAdmin() ? 'Admin' : 'User' }}
+            </span>
+          </a>
+          <ul class="dropdown-menu fn-dropdown dropdown-menu-end">
+            <li class="px-3 py-2">
+              <div class="fn-user-info-label">{{ 'NAV.CONNECTE_EN_TANT_QUE' | translate }}</div>
+              <div class="fn-user-info-name">{{ auth.getUser()?.username }}</div>
+            </li>
+            <li><hr class="dropdown-divider fn-divider"></li>
+            <li>
+              <button class="dropdown-item fn-dropdown-item text-danger" (click)="logout()">
+                <i class="bi bi-box-arrow-right me-2"></i>{{ 'NAV.DECONNEXION' | translate }}
+              </button>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<router-outlet></router-outlet>
+
+<!-- Global real-time stock alert toasts -->
+<app-stock-toast *ngIf="auth.isLoggedIn()"></app-stock-toast>

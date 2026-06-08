@@ -1,0 +1,408 @@
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  GITHUB ACTIONS — PIPELINE CI/CD DE FOURNISNET                          ║
+# ║  Explication de chaque mot clé YAML                                     ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+#
+# VOCABULAIRE GITHUB ACTIONS :
+#
+# Workflow   → ce fichier entier. Un workflow = une automatisation.
+#              Un repo peut avoir plusieurs workflows (ci.yml, deploy.yml, etc.)
+#
+# Trigger    → l'événement qui DÉCLENCHE le workflow (push, pull_request, etc.)
+#
+# Job        → une unité de travail qui tourne sur une machine virtuelle (runner).
+#              Les jobs tournent EN PARALLÈLE par défaut.
+#              Pour les mettre en séquence → needs: [autre-job]
+#
+# Step       → une étape dans un job. Les steps tournent SÉQUENTIELLEMENT.
+#              Un step peut être : une commande shell OU une "action" pré-faite.
+#
+# Runner     → la machine virtuelle qui exécute le job.
+#              ubuntu-latest = Ubuntu 22.04 sur les serveurs GitHub (gratuit)
+#
+# Action     → un package réutilisable pour faire une tâche courante.
+#              Ex: actions/checkout = cloner le repo
+#              Ex: actions/setup-java = installer Java
+#              Syntaxe: uses: owner/repo@version
+#
+# env        → variables d'environnement disponibles dans les steps
+#
+# with       → paramètres passés à une action
+#
+# run        → commande shell à exécuter (bash par défaut)
+#
+# needs      → dépendance entre jobs (job B attend que job A réussisse)
+#
+# if         → condition pour exécuter un step ou job
+#
+# outputs    → résultats qu'un job peut passer au suivant
+#
+# secrets    → variables secrètes configurées dans GitHub → Settings → Secrets
+#              On les lit avec: ${{ secrets.NOM_SECRET }}
+#
+# ${{ }}     → syntaxe "expression" GitHub Actions. Permet d'accéder à :
+#              - github.ref       : la branche (ex: refs/heads/main)
+#              - github.sha       : le hash du commit
+#              - env.MA_VAR       : une variable d'environnement
+#              - secrets.TOKEN    : un secret
+#              - needs.job.outputs: la sortie d'un job précédent
+
+# ── Nom du workflow ──────────────────────────────────────────────────────────
+# name → s'affiche dans l'onglet "Actions" de GitHub
+name: FournisNet CI/CD
+
+# ── Triggers : quand ce workflow se déclenche ────────────────────────────────
+# on → définit les événements déclencheurs
+on:
+  # push → se déclenche à chaque git push
+  push:
+    # branches → seulement sur ces branches (pas sur des branches de feature)
+    branches: [ main, develop ]
+
+  # pull_request → se déclenche quand une PR est ouverte ou mise à jour
+  pull_request:
+    branches: [ main ]
+
+  # workflow_dispatch → permet de lancer le workflow MANUELLEMENT depuis GitHub UI
+  # Utile pour redéployer sans faire de push
+  workflow_dispatch:
+
+# ── Variables d'environnement globales ──────────────────────────────────────
+# env → disponibles dans TOUS les jobs et steps
+env:
+  # Version Java utilisée dans toute la pipeline
+  JAVA_VERSION: '17'
+  # Version Node.js
+  NODE_VERSION: '20'
+
+# ══════════════════════════════════════════════════════════════════════════════
+# JOBS
+# ══════════════════════════════════════════════════════════════════════════════
+jobs:
+
+  # ╔══════════════════════════════╗
+  # ║  JOB 1 — Backend (Maven)     ║
+  # ╚══════════════════════════════╝
+  backend-test:
+    # name → s'affiche dans l'interface GitHub Actions
+    name: "Backend — Compile & Test"
+
+    # runs-on → quelle machine virtuelle utiliser
+    # ubuntu-latest → Ubuntu 22.04 (gratuit, le plus courant)
+    # Autres options : windows-latest, macos-latest
+    runs-on: ubuntu-latest
+
+    # steps → la liste des étapes dans ce job (s'exécutent en SÉQUENCE)
+    steps:
+
+      # ── Step 1 : Cloner le code ────────────────────────────────────────────
+      # uses → utilise une "action" pré-faite de la marketplace GitHub
+      # actions/checkout@v4 → clone le repo dans le runner
+      #   Sans ça, le runner n'a pas le code !
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── Step 2 : Installer Java ────────────────────────────────────────────
+      # actions/setup-java → installe Java sur le runner
+      - name: Set up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        # with → paramètres de l'action
+        with:
+          # distribution → quelle distribution Java
+          # 'temurin' = Eclipse Temurin (recommandé, open source)
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          # cache → met en cache le dossier ~/.m2 (dépendances Maven)
+          # La prochaine fois, téléchargement = 0 → build beaucoup plus rapide
+          cache: 'maven'
+
+      # ── Step 3 : Compiler + Tester ──────────────────────────────────────────
+      # run → exécute une commande shell
+      # | → en YAML, | permet un texte multi-lignes
+      - name: Build and test with Maven
+        # working-directory → change le répertoire courant pour ce step
+        working-directory: ./FournisNet
+        run: |
+          # chmod → donne les droits d'exécution au Maven Wrapper
+          # Le Maven Wrapper (mvnw) est un script qui télécharge Maven automatiquement
+          # Pas besoin d'installer Maven sur le runner !
+          chmod +x ./mvnw
+
+          # mvnw verify → compile + exécute TOUS les tests (unit + integration)
+          # -B → mode "batch" (pas d'interactivité, logs plus propres)
+          # -DskipTests=false → force l'exécution des tests (redondant mais explicite)
+          # --no-transfer-progress → cache les barres de progression Maven (logs plus lisibles)
+          ./mvnw verify -B --no-transfer-progress
+
+      # ── Step 4 : Publier le rapport de tests ────────────────────────────────
+      # if → condition : ce step ne s'exécute QUE si les tests ont échoué
+      # always() → la fonction always() retourne true même si le step précédent a échoué
+      # failure() → retourne true si un step précédent a échoué
+      - name: Upload test results on failure
+        if: failure()
+        # actions/upload-artifact → sauvegarde des fichiers dans GitHub
+        #   Tu peux les télécharger depuis l'interface après le run
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          # path → quels fichiers sauvegarder (rapports Surefire Maven)
+          path: FournisNet/target/surefire-reports/
+          # retention-days → GitHub garde les artifacts X jours
+          retention-days: 7
+
+  # ╔════════════════════════════════════════╗
+  # ║  JOB 2 — Frontend (Angular Build)      ║
+  # ╚════════════════════════════════════════╝
+  frontend-build:
+    name: "Frontend — Build Angular"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # actions/setup-node → installe Node.js sur le runner
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          # cache: 'npm' → met en cache node_modules selon package-lock.json
+          # Si package-lock.json n'a pas changé → npm ci est instantané
+          cache: 'npm'
+          # cache-dependency-path → où trouver le package-lock.json
+          cache-dependency-path: FournisNetFE/package-lock.json
+
+      # npm ci (vs npm install) :
+      # - npm install → installe et peut modifier package-lock.json
+      # - npm ci      → installe EXACTEMENT ce qui est dans package-lock.json
+      #   → déterministe, plus rapide, recommandé pour CI
+      - name: Install dependencies
+        working-directory: ./FournisNetFE
+        run: npm ci
+
+      # ng build --configuration production :
+      # - Tree-shaking (supprime le code mort)
+      # - Minification (réduit la taille)
+      # - AOT compilation (compilation Angular)
+      # - Output hashing (cache-busting)
+      - name: Build Angular (production)
+        working-directory: ./FournisNetFE
+        run: npm run build -- --configuration production
+
+      # Sauvegarde le dist/ pour le job E2E et potentiellement le déploiement
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-dist
+          path: FournisNetFE/dist/
+          retention-days: 1
+
+  # ╔══════════════════════════════════════════════════════════════╗
+  # ║  JOB 3 — Tests E2E Playwright                               ║
+  # ╚══════════════════════════════════════════════════════════════╝
+  e2e-tests:
+    name: "E2E — Playwright Tests"
+    runs-on: ubuntu-latest
+
+    # needs → ce job attend que frontend-build RÉUSSISSE avant de démarrer
+    # Si frontend-build échoue → e2e-tests est annulé automatiquement
+    needs: [ frontend-build ]
+
+    # services → containers Docker qui tournent EN PARALLÈLE du job
+    # Ici on démarre MySQL pour les tests E2E qui touchent le backend
+    services:
+      # mysql → le nom du service (accessible via hostname "mysql" dans le job)
+      mysql:
+        # image → l'image Docker à utiliser
+        image: mysql:8.0
+        # env → variables d'environnement du container MySQL
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: DB_FourniNet
+          MYSQL_USER: fourni
+          MYSQL_PASSWORD: fourni123
+        # ports → mappe le port du container vers le runner
+        # "3306:3306" → port 3306 du container = port 3306 du runner
+        ports:
+          - 3306:3306
+        # options → options Docker pour ce container
+        # --health-cmd → commande pour vérifier que MySQL est prêt
+        # GitHub Actions attend que ce healthcheck passe avant de continuer
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root --password=root"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── Java + Maven pour démarrer le backend ────────────────────────────
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'maven'
+
+      # ── Node.js pour Playwright ──────────────────────────────────────────
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: FournisNetFE/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: ./FournisNetFE
+        run: npm ci
+
+      # Télécharge les navigateurs Playwright (Chromium, Firefox, WebKit)
+      # --with-deps → installe aussi les dépendances système du navigateur
+      - name: Install Playwright browsers
+        working-directory: ./FournisNetFE
+        run: npx playwright install --with-deps chromium
+
+      # ── Démarrer le backend Spring Boot en arrière-plan ─────────────────
+      # & → en bash, & à la fin d'une commande = exécution en arrière-plan
+      # Le step continue immédiatement sans attendre la fin du process
+      - name: Start Spring Boot backend
+        working-directory: ./FournisNet
+        run: |
+          chmod +x ./mvnw
+          ./mvnw spring-boot:run \
+            -Dspring-boot.run.jvmArguments="-Dspring.datasource.url=jdbc:mysql://localhost:3306/DB_FourniNet \
+             -Dspring.datasource.username=fourni \
+             -Dspring.datasource.password=fourni123" \
+            -DskipTests &
+
+          # Attend que le backend soit prêt (vérifie /actuator/health)
+          # until → boucle qui continue JUSQU'À ce que la commande réussisse
+          # curl --fail → retourne exit code != 0 si la réponse HTTP est une erreur
+          # sleep 5 → attend 5s entre chaque essai
+          echo "Waiting for backend to start..."
+          timeout 120 bash -c 'until curl -sf http://localhost:8083/actuator/health 2>/dev/null; do sleep 5; done'
+          echo "Backend is up!"
+
+      # ── Démarrer Angular en arrière-plan ────────────────────────────────
+      - name: Start Angular dev server
+        working-directory: ./FournisNetFE
+        run: |
+          npm start &
+          echo "Waiting for Angular to start..."
+          timeout 120 bash -c 'until curl -sf http://localhost:4200 2>/dev/null; do sleep 5; done'
+          echo "Angular is up!"
+
+      # ── Lancer les tests Playwright ──────────────────────────────────────
+      # CI=true → Playwright sait qu'on est en CI (retries, headless, etc.)
+      - name: Run Playwright E2E tests
+        working-directory: ./FournisNetFE
+        # env → variables d'environnement pour ce step seulement
+        env:
+          CI: true
+        run: npx playwright test
+
+      # ── Sauvegarder le rapport HTML Playwright ────────────────────────────
+      # always() → s'exécute qu'il y ait succès ou échec
+      # Comme ça on peut voir le rapport même si les tests ont échoué
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          # playwright-report/ → généré par le reporter 'html' dans playwright.config.ts
+          path: FournisNetFE/playwright-report/
+          retention-days: 14
+
+      # Sauvegarde aussi les screenshots/traces des tests échoués
+      - name: Upload test artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: FournisNetFE/test-results/
+          retention-days: 7
+
+  # ╔══════════════════════════════════════════════════════════════╗
+  # ║  JOB 4 — Docker Build (vérification des images)             ║
+  # ╚══════════════════════════════════════════════════════════════╝
+  docker-build:
+    name: "Docker — Build Images"
+    runs-on: ubuntu-latest
+
+    # Ce job tourne en parallèle de e2e-tests mais APRÈS le build frontend
+    needs: [ backend-test, frontend-build ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── Configurer Docker Buildx ──────────────────────────────────────────
+      # docker/setup-buildx-action → active Docker Buildx (builds multi-plateformes)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # ── Build image backend ───────────────────────────────────────────────
+      # docker/build-push-action → build ET optionnellement push une image Docker
+      - name: Build backend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          # context → répertoire de build (où est le Dockerfile)
+          context: ./FournisNet
+          # push → false = on build seulement (pas de push vers Docker Hub)
+          # Pour pousser vers Docker Hub, il faudrait : push: true
+          # + ajouter les secrets DOCKERHUB_USERNAME, DOCKERHUB_TOKEN
+          push: false
+          # tags → nom:tag de l'image
+          tags: fournisnet-backend:latest
+          # cache-from → réutilise le cache du build précédent (GitHub Actions Cache)
+          cache-from: type=gha
+          # cache-to → sauvegarde le cache pour les prochains builds
+          cache-to: type=gha,mode=max
+
+      - name: Build frontend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./FournisNetFE
+          push: false
+          tags: fournisnet-frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ╔══════════════════════════════════════════════════════════════╗
+  # ║  JOB 5 — Deploy (exemple, désactivé par défaut)             ║
+  # ╚══════════════════════════════════════════════════════════════╝
+  # Ce job montre la STRUCTURE d'un déploiement.
+  # Il ne s'exécute QUE sur la branche main ET si tous les jobs précédents
+  # ont réussi. On le garde en commentaire pour ne pas avoir besoin d'un serveur.
+  #
+  # deploy:
+  #   name: "Deploy to Production"
+  #   runs-on: ubuntu-latest
+  #   needs: [ e2e-tests, docker-build ]
+  #
+  #   # if → condition d'exécution du job
+  #   # github.ref == 'refs/heads/main' → seulement sur la branche main
+  #   # github.event_name != 'pull_request' → pas sur les PRs
+  #   if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+  #
+  #   # environment → lie ce job à un "environnement" GitHub (Settings > Environments)
+  #   # Les environnements ont leurs propres secrets et règles d'approbation
+  #   environment: production
+  #
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Deploy to server via SSH
+  #       uses: appleboy/ssh-action@v1
+  #       with:
+  #         host: ${{ secrets.SERVER_HOST }}
+  #         username: ${{ secrets.SERVER_USER }}
+  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #         script: |
+  #           cd /opt/fournisnet
+  #           git pull
+  #           docker-compose pull
+  #           docker-compose up -d --remove-orphans

@@ -1,0 +1,76 @@
+{
+  "NAV": {
+    "DASHBOARD": "لوحة التحكم",
+    "ACCUEIL": "الرئيسية",
+    "CATALOGUE": "الكتالوج",
+    "ADMINISTRATION": "الإدارة",
+    "CONTACT": "اتصل بنا",
+    "FOURNISSEURS": "الموردون",
+    "ARBO_FOURNISSEURS": "شجرة الموردين",
+    "PIECES": "قطع الغيار",
+    "ARBO_PRODUITS": "شجرة المنتجات",
+    "CATEGORIES": "الفئات",
+    "DECONNEXION": "تسجيل الخروج",
+    "CONNECTE_EN_TANT_QUE": "متصل بصفة"
+  },
+  "DASHBOARD": {
+    "TITLE": "لوحة التحكم",
+    "WELCOME": "مرحباً",
+    "FOURNISSEURS": "الموردون",
+    "PRODUITS": "المنتجات",
+    "CATEGORIES": "الفئات",
+    "CONSTRUCTEURS": "المصنّعون",
+    "ALERTES_STOCK": "تنبيهات المخزون",
+    "ACCES_RAPIDE": "وصول سريع"
+  },
+  "CATALOGUE": {
+    "TITLE": "كتالوج قطع الغيار",
+    "SEARCH_PLACEHOLDER": "ابحث عن قطعة...",
+    "ALL_CATEGORIES": "كل الفئات",
+    "NO_RESULTS": "لا توجد منتجات",
+    "LOADING": "جار التحميل...",
+    "REF": "رقم المرجع",
+    "IN_STOCK": "متوفر",
+    "LOW_STOCK": "مخزون منخفض",
+    "OUT_OF_STOCK": "نفد المخزون"
+  },
+  "PRODUIT_ADMIN": {
+    "TITLE": "إدارة القطع",
+    "ADD": "إضافة قطعة",
+    "EDIT": "تعديل",
+    "DELETE": "حذف",
+    "SAVE": "حفظ",
+    "CANCEL": "إلغاء",
+    "NOM": "الاسم",
+    "REFERENCE": "المرجع",
+    "DESCRIPTION": "الوصف",
+    "PRIX": "السعر (د.ت)",
+    "QUANTITE": "الكمية",
+    "QUANTITE_MIN": "الحد الأدنى للمخزون",
+    "CATEGORIE": "الفئة",
+    "FOURNISSEUR": "المورد",
+    "CONSTRUCTEUR": "المصنّع",
+    "SUGGEST_CATEGORY": "اقتراح فئة (ذكاء اصطناعي)",
+    "SUGGESTING": "جار التحليل...",
+    "STOCK_UPDATE": "تحديث المخزون"
+  },
+  "STOCK": {
+    "ALERT_TITLE": "تنبيه المخزون",
+    "LOW_STOCK_MSG": "{{nom}} — مخزون منخفض ({{quantite}} / الحد الأدنى {{quantiteMin}})",
+    "UPDATED": "تم تحديث المخزون"
+  },
+  "COMMON": {
+    "SAVE": "حفظ",
+    "CANCEL": "إلغاء",
+    "DELETE": "حذف",
+    "EDIT": "تعديل",
+    "ADD": "إضافة",
+    "CONFIRM_DELETE": "تأكيد الحذف",
+    "CONFIRM_DELETE_MSG": "هذا الإجراء لا يمكن التراجع عنه.",
+    "ERROR": "حدث خطأ.",
+    "LOADING": "جار التحميل...",
+    "PREV": "السابق",
+    "NEXT": "التالي",
+    "PAGE": "صفحة"
+  }
+}

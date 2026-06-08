@@ -1,0 +1,25 @@
+# Notes personnelles
+LEARNING_NOTES.md
+
+# Playwright MCP debug logs (outil de dev, pas de code projet)
+.playwright-mcp/
+FournisNetFE/.playwright-mcp/
+
+# Frontend
+FournisNetFE/node_modules/
+FournisNetFE/dist/
+FournisNetFE/test-results/
+FournisNetFE/playwright-report/
+FournisNetFE/.angular/
+
+# Backend
+FournisNet/target/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

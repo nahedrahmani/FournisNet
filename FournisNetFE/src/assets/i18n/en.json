@@ -1,0 +1,76 @@
+{
+  "NAV": {
+    "DASHBOARD": "Dashboard",
+    "ACCUEIL": "Home",
+    "CATALOGUE": "Catalogue",
+    "ADMINISTRATION": "Administration",
+    "CONTACT": "Contact",
+    "FOURNISSEURS": "Suppliers",
+    "ARBO_FOURNISSEURS": "Supplier tree",
+    "PIECES": "Parts",
+    "ARBO_PRODUITS": "Product tree",
+    "CATEGORIES": "Categories",
+    "DECONNEXION": "Logout",
+    "CONNECTE_EN_TANT_QUE": "Logged in as"
+  },
+  "DASHBOARD": {
+    "TITLE": "Dashboard",
+    "WELCOME": "Welcome",
+    "FOURNISSEURS": "Suppliers",
+    "PRODUITS": "Products",
+    "CATEGORIES": "Categories",
+    "CONSTRUCTEURS": "Manufacturers",
+    "ALERTES_STOCK": "Stock alerts",
+    "ACCES_RAPIDE": "Quick access"
+  },
+  "CATALOGUE": {
+    "TITLE": "Parts Catalogue",
+    "SEARCH_PLACEHOLDER": "Search a part...",
+    "ALL_CATEGORIES": "All categories",
+    "NO_RESULTS": "No products found",
+    "LOADING": "Loading...",
+    "REF": "Ref",
+    "IN_STOCK": "In stock",
+    "LOW_STOCK": "Low stock",
+    "OUT_OF_STOCK": "Out of stock"
+  },
+  "PRODUIT_ADMIN": {
+    "TITLE": "Parts Management",
+    "ADD": "Add a part",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "NOM": "Name",
+    "REFERENCE": "Reference",
+    "DESCRIPTION": "Description",
+    "PRIX": "Price (TND)",
+    "QUANTITE": "Quantity",
+    "QUANTITE_MIN": "Minimum stock",
+    "CATEGORIE": "Category",
+    "FOURNISSEUR": "Supplier",
+    "CONSTRUCTEUR": "Manufacturer",
+    "SUGGEST_CATEGORY": "Suggest category (AI)",
+    "SUGGESTING": "Analysing...",
+    "STOCK_UPDATE": "Update stock"
+  },
+  "STOCK": {
+    "ALERT_TITLE": "Stock alert",
+    "LOW_STOCK_MSG": "{{nom}} — low stock ({{quantite}} / min {{quantiteMin}})",
+    "UPDATED": "Stock updated"
+  },
+  "COMMON": {
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "DELETE": "Delete",
+    "EDIT": "Edit",
+    "ADD": "Add",
+    "CONFIRM_DELETE": "Confirm deletion",
+    "CONFIRM_DELETE_MSG": "This action is irreversible.",
+    "ERROR": "An error occurred.",
+    "LOADING": "Loading...",
+    "PREV": "Previous",
+    "NEXT": "Next",
+    "PAGE": "Page"
+  }
+}

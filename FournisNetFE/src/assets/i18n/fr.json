@@ -1,0 +1,76 @@
+{
+  "NAV": {
+    "DASHBOARD": "Dashboard",
+    "ACCUEIL": "Accueil",
+    "CATALOGUE": "Catalogue",
+    "ADMINISTRATION": "Administration",
+    "CONTACT": "Contact",
+    "FOURNISSEURS": "Fournisseurs",
+    "ARBO_FOURNISSEURS": "Arborescence fournisseurs",
+    "PIECES": "Pièces",
+    "ARBO_PRODUITS": "Arborescence produits",
+    "CATEGORIES": "Catégories",
+    "DECONNEXION": "Déconnexion",
+    "CONNECTE_EN_TANT_QUE": "Connecté en tant que"
+  },
+  "DASHBOARD": {
+    "TITLE": "Tableau de bord",
+    "WELCOME": "Bienvenue",
+    "FOURNISSEURS": "Fournisseurs",
+    "PRODUITS": "Produits",
+    "CATEGORIES": "Catégories",
+    "CONSTRUCTEURS": "Constructeurs",
+    "ALERTES_STOCK": "Alertes stock",
+    "ACCES_RAPIDE": "Accès rapide"
+  },
+  "CATALOGUE": {
+    "TITLE": "Catalogue de pièces",
+    "SEARCH_PLACEHOLDER": "Rechercher une pièce...",
+    "ALL_CATEGORIES": "Toutes les catégories",
+    "NO_RESULTS": "Aucun produit trouvé",
+    "LOADING": "Chargement...",
+    "REF": "Réf",
+    "IN_STOCK": "En stock",
+    "LOW_STOCK": "Stock faible",
+    "OUT_OF_STOCK": "Rupture"
+  },
+  "PRODUIT_ADMIN": {
+    "TITLE": "Gestion des pièces",
+    "ADD": "Ajouter une pièce",
+    "EDIT": "Modifier",
+    "DELETE": "Supprimer",
+    "SAVE": "Enregistrer",
+    "CANCEL": "Annuler",
+    "NOM": "Nom",
+    "REFERENCE": "Référence",
+    "DESCRIPTION": "Description",
+    "PRIX": "Prix (TND)",
+    "QUANTITE": "Quantité",
+    "QUANTITE_MIN": "Stock minimum",
+    "CATEGORIE": "Catégorie",
+    "FOURNISSEUR": "Fournisseur",
+    "CONSTRUCTEUR": "Constructeur",
+    "SUGGEST_CATEGORY": "Suggérer catégorie (IA)",
+    "SUGGESTING": "Analyse en cours...",
+    "STOCK_UPDATE": "Mettre à jour le stock"
+  },
+  "STOCK": {
+    "ALERT_TITLE": "Alerte stock",
+    "LOW_STOCK_MSG": "{{nom}} — stock faible ({{quantite}} / min {{quantiteMin}})",
+    "UPDATED": "Stock mis à jour"
+  },
+  "COMMON": {
+    "SAVE": "Enregistrer",
+    "CANCEL": "Annuler",
+    "DELETE": "Supprimer",
+    "EDIT": "Modifier",
+    "ADD": "Ajouter",
+    "CONFIRM_DELETE": "Confirmer la suppression",
+    "CONFIRM_DELETE_MSG": "Cette action est irréversible.",
+    "ERROR": "Une erreur est survenue.",
+    "LOADING": "Chargement...",
+    "PREV": "Précédent",
+    "NEXT": "Suivant",
+    "PAGE": "Page"
+  }
+}

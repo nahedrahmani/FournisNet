@@ -1,0 +1,136 @@
+<section class="ftco-section">
+  <div class="container">
+
+    <div class="row justify-content-center mb-5">
+      <div class="col-md-10 heading-section text-center">
+        <span class="subheading">{{ 'DASHBOARD.TITLE' | translate }}</span>
+        <h2 class="mb-2">{{ 'DASHBOARD.WELCOME' | translate }}, FournisNet</h2>
+        <p class="text-muted">Gérez vos fournisseurs, pièces et arborescences depuis une seule plateforme.</p>
+      </div>
+    </div>
+
+    <!-- Loading / Error -->
+    <div *ngIf="loading" class="text-center text-muted fst-italic mb-5">
+      <i class="bi bi-arrow-repeat spin me-2"></i>{{ 'COMMON.LOADING' | translate }}
+    </div>
+    <div *ngIf="error" class="alert alert-warning text-center">
+      <i class="bi bi-exclamation-triangle me-2"></i>Impossible de charger les statistiques. Le serveur est-il démarré ?
+    </div>
+
+    <!-- ── STAT CARDS ───────────────────────────────────────── -->
+    <div *ngIf="stats" class="row g-4 mb-5">
+
+      <div class="col-md-4 col-lg-2-4">
+        <div class="card h-100 stat-card stat-card--blue">
+          <div class="card-body text-center py-4">
+            <i class="bi bi-building stat-icon"></i>
+            <h1 class="stat-number">{{ stats.fournisseurs }}</h1>
+            <p class="stat-label">{{ 'DASHBOARD.FOURNISSEURS' | translate }}</p>
+          </div>
+          <div class="card-footer text-center pb-3">
+            <a routerLink="/fournisseur-admin" class="stat-link">Gérer →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-lg-2-4">
+        <div class="card h-100 stat-card stat-card--green">
+          <div class="card-body text-center py-4">
+            <i class="bi bi-tools stat-icon"></i>
+            <h1 class="stat-number">{{ stats.produits }}</h1>
+            <p class="stat-label">{{ 'DASHBOARD.PRODUITS' | translate }}</p>
+          </div>
+          <div class="card-footer text-center pb-3">
+            <a routerLink="/produit-admin" class="stat-link">Gérer →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-lg-2-4">
+        <div class="card h-100 stat-card stat-card--orange">
+          <div class="card-body text-center py-4">
+            <i class="bi bi-tags stat-icon"></i>
+            <h1 class="stat-number">{{ stats.categories }}</h1>
+            <p class="stat-label">{{ 'DASHBOARD.CATEGORIES' | translate }}</p>
+          </div>
+          <div class="card-footer text-center pb-3">
+            <a routerLink="/categories" class="stat-link">Gérer →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-lg-2-4">
+        <div class="card h-100 stat-card stat-card--navy">
+          <div class="card-body text-center py-4">
+            <i class="bi bi-gear-wide-connected stat-icon"></i>
+            <h1 class="stat-number">{{ stats.constructeurs }}</h1>
+            <p class="stat-label">{{ 'DASHBOARD.CONSTRUCTEURS' | translate }}</p>
+          </div>
+          <div class="card-footer text-center pb-3">
+            <span class="stat-link" style="opacity:0.5">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stock alerts card — red when > 0 -->
+      <div class="col-md-4 col-lg-2-4">
+        <div class="card h-100 stat-card"
+             [class.stat-card--red]="stats.alertesStock > 0"
+             [class.stat-card--green]="stats.alertesStock === 0">
+          <div class="card-body text-center py-4">
+            <i class="bi stat-icon"
+               [class.bi-exclamation-triangle-fill]="stats.alertesStock > 0"
+               [class.bi-check-circle-fill]="stats.alertesStock === 0"></i>
+            <h1 class="stat-number">{{ stats.alertesStock }}</h1>
+            <p class="stat-label">{{ 'DASHBOARD.ALERTES_STOCK' | translate }}</p>
+          </div>
+          <div class="card-footer text-center pb-3">
+            <a routerLink="/produit-admin" class="stat-link">Voir →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── QUICK ACCESS ─────────────────────────────────────── -->
+    <h4 class="mb-3 fw-bold" style="color:var(--fn-navy)">
+      <i class="bi bi-lightning-charge me-2 text-danger"></i>{{ 'DASHBOARD.ACCES_RAPIDE' | translate }}
+    </h4>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <a routerLink="/AdminTree" class="text-decoration-none">
+          <div class="card quick-card h-100 p-4 d-flex flex-row align-items-center gap-3">
+            <i class="bi bi-diagram-3 quick-icon"></i>
+            <div>
+              <h5 class="mb-0 fw-bold" style="color:var(--fn-navy)">Arborescence fournisseurs</h5>
+              <small class="text-muted">Visualiser la hiérarchie complète</small>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a routerLink="/arbo" class="text-decoration-none">
+          <div class="card quick-card h-100 p-4 d-flex flex-row align-items-center gap-3">
+            <i class="bi bi-folder-symlink quick-icon"></i>
+            <div>
+              <h5 class="mb-0 fw-bold" style="color:var(--fn-navy)">Arborescence produits</h5>
+              <small class="text-muted">Importer et explorer le catalogue</small>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a routerLink="/pieces" class="text-decoration-none">
+          <div class="card quick-card h-100 p-4 d-flex flex-row align-items-center gap-3">
+            <i class="bi bi-grid quick-icon"></i>
+            <div>
+              <h5 class="mb-0 fw-bold" style="color:var(--fn-navy)">Catalogue public</h5>
+              <small class="text-muted">Parcourir les pièces disponibles</small>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,29 @@
+<div class="pnode">
+  <div class="pnode-header" [class.is-group]="node.groupNode" [class.is-product]="!node.groupNode">
+
+    <!-- Toggle button: only shown if this node has children -->
+    <button *ngIf="hasChildren" class="toggle-btn" (click)="toggle()" [title]="expanded ? 'Réduire' : 'Développer'">
+      {{ expanded ? '▼' : '▶' }}
+    </button>
+    <!-- Placeholder to keep alignment when there is no toggle button -->
+    <span *ngIf="!hasChildren" class="toggle-placeholder"></span>
+
+    <!-- Icon: folder for groups, tag for leaf products -->
+    <span class="pnode-icon">{{ node.groupNode ? '📁' : '🔧' }}</span>
+
+    <span class="pnode-label">{{ node.nom }}</span>
+
+    <!-- Show reference if available (only on real products) -->
+    <span *ngIf="!node.groupNode && node.reference" class="pnode-ref">{{ node.reference }}</span>
+
+    <!-- Show price if available -->
+    <span *ngIf="!node.groupNode && node.prix" class="pnode-prix">{{ node.prix | number:'1.2-2' }} €</span>
+  </div>
+
+  <!-- Recursive children: rendered only when expanded -->
+  <ul *ngIf="hasChildren && expanded" class="pnode-children">
+    <li *ngFor="let child of node.children">
+      <app-produit-node [node]="child"></app-produit-node>
+    </li>
+  </ul>
+</div>

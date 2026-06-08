@@ -1,0 +1,76 @@
+<section class="ftco-section bg-light">
+  <div class="container">
+
+    <!-- Heading -->
+    <div class="row justify-content-center mb-5">
+      <div class="col-md-12 heading-section text-center">
+        <span class="subheading">Administration</span>
+        <h2 class="mb-2">Gestion de l'Arborescence des Produits</h2>
+        <p>Importez votre catalogue et visualisez la hiérarchie complète.</p>
+      </div>
+    </div>
+
+    <!-- Success / Error messages -->
+    <div *ngIf="successMessage" class="alert alert-success alert-dismissible" role="alert">
+      {{ successMessage }}
+      <button type="button" class="btn-close" (click)="successMessage = null"></button>
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible" role="alert">
+      {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = null"></button>
+    </div>
+
+    <!-- ── CATALOG IMPORT (TSV 4-level) ─────────────────────────────── -->
+    <div class="card shadow-sm rounded p-4 mb-4">
+      <h5 class="mb-1">📂 Import catalogue (format TSV — 4 niveaux)</h5>
+      <p class="text-muted small mb-3">
+        Fichier TSV avec 14 colonnes : idGroupe1 / nom / image × 4 niveaux + idProduit / nomProduit.
+        Un re-import du même fichier ne créera pas de doublons.
+      </p>
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <input type="file" class="form-control" style="max-width: 360px"
+               accept=".tsv,.txt,.csv" (change)="onCatalogFileSelected($event)" />
+        <button class="btn btn-primary" (click)="uploadCatalog()" [disabled]="catalogLoading || !catalogFile">
+          {{ catalogLoading ? 'Import en cours...' : 'Importer le catalogue' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── LEGACY IMPORT (CSV simple) ───────────────────────────────── -->
+    <div class="card shadow-sm rounded p-4 mb-5">
+      <h5 class="mb-1">📄 Import simple (format CSV)</h5>
+      <p class="text-muted small mb-3">
+        Format : <code>id, nom, categorie, parentId</code> (une ligne par produit).
+      </p>
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <input type="file" class="form-control" style="max-width: 360px"
+               accept=".csv,.txt" (change)="onLegacyFileSelected($event)" />
+        <button class="btn btn-secondary" (click)="uploadLegacy()" [disabled]="legacyLoading || !legacyFile">
+          {{ legacyLoading ? 'Import en cours...' : 'Importer' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── TREE DISPLAY ──────────────────────────────────────────────── -->
+    <div class="card shadow-sm rounded p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Arborescence des produits</h5>
+        <button class="btn btn-outline-secondary btn-sm" (click)="loadTree()">↻ Actualiser</button>
+      </div>
+
+      <div *ngIf="treeLoading" class="text-muted fst-italic">Chargement...</div>
+
+      <div *ngIf="!treeLoading && tree.length === 0" class="text-muted fst-italic">
+        Aucun produit trouvé. Importez un fichier pour commencer.
+      </div>
+
+      <!-- Root nodes: each renders itself and its children recursively -->
+      <ul *ngIf="!treeLoading && tree.length > 0" class="tree-root-list">
+        <li *ngFor="let node of tree">
+          <app-produit-node [node]="node"></app-produit-node>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</section>

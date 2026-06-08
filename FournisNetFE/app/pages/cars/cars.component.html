@@ -1,0 +1,160 @@
+<!-- PAGE HEADER -->
+<div class="cat-hero">
+  <div class="cat-hero-overlay"></div>
+  <div class="container position-relative z-1">
+    <div class="row align-items-center" style="min-height:220px">
+      <div class="col-md-8">
+        <nav aria-label="breadcrumb" class="mb-2">
+          <ol class="breadcrumb cat-breadcrumb">
+            <li class="breadcrumb-item"><a routerLink="/home">{{ 'NAV.DASHBOARD' | translate }}</a></li>
+            <li class="breadcrumb-item active">{{ 'NAV.CATALOGUE' | translate }}</li>
+          </ol>
+        </nav>
+        <h1 class="cat-hero-title mb-1">{{ 'CATALOGUE.TITLE' | translate }}</h1>
+        <p class="cat-hero-sub mb-0">
+          <span *ngIf="!loading && !error">{{ totalElements }} pièce(s) — page {{ currentPage + 1 }}/{{ totalPages }}</span>
+          <span *ngIf="loading">{{ 'CATALOGUE.LOADING' | translate }}</span>
+        </p>
+      </div>
+      <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a routerLink="/produit-admin" class="btn cat-btn-outline">
+          <i class="bi bi-plus-lg me-1"></i>{{ 'COMMON.ADD' | translate }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTERS & SEARCH -->
+<div class="cat-toolbar sticky-top">
+  <div class="container">
+    <div class="row align-items-center g-3">
+      <!-- Search -->
+      <div class="col-md-4">
+        <div class="cat-search-wrap">
+          <i class="bi bi-search cat-search-icon"></i>
+          <input
+            type="text"
+            class="cat-search"
+            [placeholder]="'CATALOGUE.SEARCH_PLACEHOLDER' | translate"
+            [(ngModel)]="searchQuery"
+            (input)="onSearch()"
+          />
+        </div>
+      </div>
+      <!-- Category chips -->
+      <div class="col-md-8">
+        <div class="cat-chips-scroll">
+          <button
+            class="cat-chip"
+            [class.cat-chip--active]="activeCategorieId === undefined"
+            (click)="setCategory(undefined)"
+          >
+            {{ 'CATALOGUE.ALL_CATEGORIES' | translate }}
+          </button>
+          <button
+            *ngFor="let cat of categories"
+            class="cat-chip"
+            [class.cat-chip--active]="activeCategorieId === cat.id"
+            (click)="setCategory(cat.id)"
+          >
+            {{ cat.nom }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT GRID -->
+<section class="cat-section">
+  <div class="container">
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="cat-state">
+      <div class="cat-spinner"></div>
+      <p>{{ 'CATALOGUE.LOADING' | translate }}</p>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="cat-state">
+      <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size:3rem"></i>
+      <p class="text-danger fw-semibold mt-2">Impossible de charger le catalogue.</p>
+      <p class="text-muted small">Vérifiez que le backend est démarré sur le port 8083.</p>
+      <a routerLink="/home" class="btn cat-btn-primary mt-2">Retour au tableau de bord</a>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loading && !error && produits.length === 0" class="cat-state">
+      <i class="bi bi-inbox" style="font-size:3rem; color:var(--fn-muted)"></i>
+      <p class="fw-semibold mt-2">{{ 'CATALOGUE.NO_RESULTS' | translate }}</p>
+      <p class="text-muted small" *ngIf="searchQuery || activeCategorieId">
+        Essayez de modifier votre recherche ou votre filtre.
+      </p>
+      <a routerLink="/arbo" class="btn cat-btn-primary mt-2">Importer un catalogue</a>
+    </div>
+
+    <!-- Grid -->
+    <div *ngIf="!loading && !error && produits.length > 0" class="row g-4">
+      <div class="col-sm-6 col-lg-4 col-xl-3" *ngFor="let p of produits; let i = index">
+        <div class="cat-card">
+          <div class="cat-card-img"
+               [style.background]="p.imageUrl ? 'none' : getGradient(i)"
+               [style.backgroundImage]="p.imageUrl ? 'url(' + p.imageUrl + ')' : 'none'"
+               style="background-size:cover; background-position:center">
+            <i *ngIf="!p.imageUrl" class="bi {{ getIcon(p) }}" style="font-size:2.5rem;color:rgba(255,255,255,0.8)"></i>
+            <!-- Stock indicator pill -->
+            <span class="cat-stock-pill" [ngClass]="{
+              'cat-stock-ok':  stockStatus(p) === 'ok',
+              'cat-stock-low': stockStatus(p) === 'low',
+              'cat-stock-out': stockStatus(p) === 'out'
+            }">
+              <i class="bi" [ngClass]="{
+                'bi-check-circle-fill': stockStatus(p) === 'ok',
+                'bi-exclamation-triangle-fill': stockStatus(p) === 'low',
+                'bi-x-circle-fill': stockStatus(p) === 'out'
+              }"></i>
+              {{ stockStatus(p) === 'ok' ? ('CATALOGUE.IN_STOCK' | translate) :
+                 stockStatus(p) === 'low' ? ('CATALOGUE.LOW_STOCK' | translate) :
+                 ('CATALOGUE.OUT_OF_STOCK' | translate) }}
+            </span>
+          </div>
+          <div class="cat-card-body">
+            <div class="d-flex align-items-start justify-content-between gap-2 mb-1">
+              <span class="cat-tag">{{ p.categorie?.nom || 'Non classé' }}</span>
+              <span *ngIf="p.reference" class="cat-ref">{{ p.reference }}</span>
+            </div>
+            <h5 class="cat-card-name">{{ p.nom }}</h5>
+            <p *ngIf="p.description" class="cat-card-desc">{{ p.description }}</p>
+            <div class="d-flex align-items-center justify-content-between mt-auto pt-2">
+              <span class="cat-price" *ngIf="p.prix">{{ p.prix | number:'1.0-0' }} TND</span>
+              <span class="cat-price text-muted" *ngIf="!p.prix">—</span>
+              <a routerLink="/produit-single" class="btn cat-btn-sm">
+                <i class="bi bi-eye me-1"></i>Détails
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PAGINATION ──────────────────────────────────────── -->
+    <nav *ngIf="totalPages > 1" class="cat-pagination mt-5 d-flex justify-content-center align-items-center gap-2">
+      <button class="cat-page-btn" (click)="prevPage()" [disabled]="currentPage === 0">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+
+      <button *ngFor="let p of pageNumbers"
+              class="cat-page-btn"
+              [class.cat-page-btn--active]="p === currentPage"
+              (click)="goToPage(p)">
+        {{ p + 1 }}
+      </button>
+
+      <button class="cat-page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages - 1">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </nav>
+
+  </div>
+</section>
